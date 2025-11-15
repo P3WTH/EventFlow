@@ -3,11 +3,11 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 
-# Carrega as variáveis do arquivo .env (a chave da API)
+
 load_dotenv()
 GOOGLE_MAPS_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
-# --- Configuração do App e Banco de Dados ---
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -17,7 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# --- Modelos do Banco de Dados (A Estrutura das Tabelas) ---
+
 
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -51,7 +51,7 @@ class Categoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), unique=True, nullable=False)
 
-# --- Funções Auxiliares ---
+
 
 def get_static_map_url(latitude, longitude):
     if not GOOGLE_MAPS_KEY:
@@ -101,7 +101,7 @@ def usuario_to_dict(usuario):
         "token": usuario.token
     }
 
-# --- Endpoints da API (Agora usam o Banco de Dados) ---
+
 
 @app.route('/eventos', methods=['GET'])
 def get_eventos():
@@ -114,7 +114,7 @@ def get_evento_por_id(evento_id):
     if not evento:
         return jsonify({"erro": "Evento não encontrado"}), 404
     
-    # Busca o local para adicionar lat/lng
+    
     local_do_evento = Local.query.filter_by(nome=evento.localizacao_nome).first()
     evento_dict = evento_to_dict(evento)
     
@@ -283,8 +283,7 @@ def login():
 
 @app.route('/perfil', methods=['GET'])
 def get_perfil():
-    # Simplesmente pega o primeiro usuário. 
-    # Em um app real, você usaria o Token de autenticação.
+    
     usuario = Usuario.query.first()
     if usuario:
         return jsonify({
@@ -295,7 +294,7 @@ def get_perfil():
     else:
         return jsonify({"erro": "Nenhum usuário configurado"}), 404
 
-# --- Função de Setup do Banco de Dados ---
+
 def setup_database(app):
     db_path = os.path.join(basedir, 'eventflow.db')
     if not os.path.exists(db_path):
@@ -303,7 +302,7 @@ def setup_database(app):
         with app.app_context():
             db.create_all()
             
-            # Adiciona usuário mock
+            
             if not Usuario.query.first():
                 usuario_yara = Usuario(
                     nome="Yara de Oliveira Matos",
@@ -313,7 +312,7 @@ def setup_database(app):
                 )
                 db.session.add(usuario_yara)
             
-            # Adiciona categorias mock
+            
             if not Categoria.query.first():
                 categorias_iniciais = [
                     Categoria(nome="Palestra"),
@@ -324,7 +323,7 @@ def setup_database(app):
                 ]
                 db.session.bulk_save_objects(categorias_iniciais)
 
-            # Adiciona locais mock
+            
             if not Local.query.first():
                 locais_iniciais = [
                     Local(nome="Centro de Convenções Principal", latitude=-23.550520, longitude=-46.633308, endereco="Avenida Central, 1234", bairro="Centro", cidade="Solaris City"),
@@ -333,7 +332,7 @@ def setup_database(app):
                 ]
                 db.session.bulk_save_objects(locais_iniciais)
             
-            # Adiciona eventos mock
+            
             if not Evento.query.first():
                 eventos_iniciais = [
                     Evento(nome="Lorem ipsum dolor sit amet...", data="10/12/2025", preco=0.00, categoria="Palestra", miniatura_url=get_static_map_url(-23.550520, -46.633308), descricao_longa="Esta é uma palestra incrível...", localizacao_nome="Centro de Convenções Principal"),
@@ -345,7 +344,7 @@ def setup_database(app):
             db.session.commit()
             print("Banco de dados criado e populado com sucesso.")
 
-# --- Roda a Aplicação ---
+
 if __name__ == '__main__':
     setup_database(app)
     app.run(debug=True, port=5000)

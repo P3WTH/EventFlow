@@ -117,3 +117,9 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+
+# --- Arquivos da API Python ---
+api_python/.env
+api_python/eventflow.db
+api_python/__pycache__/
+api_python/venv/
